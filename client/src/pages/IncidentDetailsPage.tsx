@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useParams } from 'react-router-dom'
 import { io } from 'socket.io-client'
+import { getApiUrl, getSocketOptions } from '../config/env'
 import LoadingSpinner from '../components/LoadingSpinner'
 import EmptyState from '../components/EmptyState'
 import ToastViewport from '../components/ToastViewport'
@@ -12,8 +13,6 @@ import { runAINextActions, runAISummary } from '../services/api'
 import { PriorityBadge, StatusBadge } from '../components/IncidentBadge'
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal'
 import { formatRelativeTime } from '../utils/time'
-
-const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
 function AiCard({
   title,
@@ -126,7 +125,7 @@ export default function IncidentDetailsPage() {
   }, [incidentId])
 
   useEffect(() => {
-    const s = io(socketUrl, { transports: ['websocket', 'polling'] })
+    const s = io(getApiUrl(), getSocketOptions())
 
     s.on('connect', () => {
       s.emit('room:join', { incidentId })

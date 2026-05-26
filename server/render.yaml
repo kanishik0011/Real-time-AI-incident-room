@@ -1,18 +1,23 @@
-databases:
-  - name: mongodb
+# Render Blueprint — import repo and set root directory to "server" OR use this from repo root.
+# https://render.com/docs/blueprint-spec
 
 services:
-  - name: api
-    type: web
-    env:
-      - key: PORT
-        from: $PORT
+  - type: web
+    name: incident-room-api
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
       - key: MONGO_URI
-        from: DATABASE_URL
-      - key: GEMINI_API_KEY
-        from: GEMINI_API_KEY
+        sync: false
       - key: CLIENT_URL
-        from: CLIENT_URL
-    build_command: npm run build
-    start_command: npm run start
-
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+        optional: true

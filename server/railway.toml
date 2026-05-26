@@ -1,0 +1,12 @@
+# Railway — set service root directory to /server in the dashboard.
+# Docs: https://docs.railway.app/guides/nodejs
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install && npm run build"
+
+[deploy]
+startCommand = "npm run start"
+healthcheckPath = "/health"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"

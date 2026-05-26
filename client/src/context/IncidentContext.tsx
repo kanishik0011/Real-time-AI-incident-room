@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { io } from 'socket.io-client'
+import { getApiUrl, getSocketOptions } from '../config/env'
 import { api, createIncident as createIncidentApi, getIncident, getIncidents, updateIncidentStatus } from '../services/api'
 import type { AIResult, Incident, IncidentUpdate, Priority, Status } from '../types/incidents'
 import { useToasts } from './ToastContext'
@@ -41,8 +42,6 @@ type IncidentContextValue = {
 
 const IncidentContext = createContext<IncidentContextValue | null>(null)
 
-const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000'
-
 export function IncidentProvider({ children }: { children: React.ReactNode }) {
   const { push } = useToasts()
   const [incidents, setIncidents] = useState<Incident[]>([])
@@ -51,7 +50,7 @@ export function IncidentProvider({ children }: { children: React.ReactNode }) {
   const [socketConnected, setSocketConnected] = useState(false)
 
   useEffect(() => {
-    const s = io(socketUrl, { transports: ['websocket', 'polling'] })
+    const s = io(getApiUrl(), getSocketOptions())
 
     s.on('connect', () => setSocketConnected(true))
     s.on('disconnect', () => setSocketConnected(false))

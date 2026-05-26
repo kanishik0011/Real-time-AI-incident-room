@@ -154,18 +154,27 @@ Default fallback actions apply when no keyword matches. The UI notes that rule-b
 
 **AIResult:** `_id`, `incident_id`, `type` (`summary` \| `next_actions`), `result_text`, `created_at`
 
-## Deployment
+## Deployment (production)
 
-### Frontend (Vercel)
+Full step-by-step guide: **[DEPLOYMENT.md](./DEPLOYMENT.md)**
 
-- Root directory: `client`
-- Build: `npm run build`
-- Env: `VITE_API_URL` → your backend URL
+| Service | Platform | Root folder | Required env |
+|---------|----------|-------------|--------------|
+| Frontend | Vercel | `client` | `VITE_API_URL` → `https://your-api.onrender.com` |
+| API + Socket.IO | Render or Railway | `server` | `MONGO_URI`, `CLIENT_URL`, optional `GEMINI_API_KEY` |
+| Database | MongoDB Atlas | — | Connection string in `MONGO_URI` |
 
-### Backend (Render)
+**Quick steps**
 
-- Use `server/render.yaml`
-- Env: `MONGO_URI`, `CLIENT_URL`, optional `GEMINI_API_KEY`, `PORT` (provided by Render)
+1. Create MongoDB Atlas cluster → copy `MONGO_URI`.
+2. Deploy `server/` on Render (build: `npm install && npm run build`, start: `npm run start`, health: `/health`).
+3. Set `CLIENT_URL` to your Vercel URL(s), e.g. `https://your-app.vercel.app,https://*.vercel.app`.
+4. Deploy `client/` on Vercel with `VITE_API_URL` pointing at the Render URL.
+5. Verify `GET /health` and test live updates in the browser.
+
+Configs included: `client/vercel.json`, `server/render.yaml`, `server/railway.toml`.
+
+**Socket.IO:** The client uses `VITE_API_URL` for both REST and WebSocket (no hardcoded localhost in production builds).
 
 ## Screenshots
 
