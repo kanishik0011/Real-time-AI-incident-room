@@ -1,0 +1,23 @@
+# Render Blueprint (repo root). See also server/render.yaml
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: incident-room-api
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+        optional: true
