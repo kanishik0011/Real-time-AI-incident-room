@@ -1,0 +1,18 @@
+databases:
+  - name: mongodb
+
+services:
+  - name: api
+    type: web
+    env:
+      - key: PORT
+        from: $PORT
+      - key: MONGO_URI
+        from: DATABASE_URL
+      - key: GEMINI_API_KEY
+        from: GEMINI_API_KEY
+      - key: CLIENT_URL
+        from: CLIENT_URL
+    build_command: npm run build
+    start_command: npm run start
+
