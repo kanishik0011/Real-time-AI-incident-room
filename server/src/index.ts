@@ -61,9 +61,17 @@ ioSingleton.set(io)
 const port = Number(process.env.PORT) || 4000
 
 async function start() {
-  const mongoUri = process.env.MONGO_URI
+  const mongoUri = process.env.MONGO_URI?.trim()
   if (!mongoUri) {
-    throw new Error('MONGO_URI is required')
+    throw new Error('MONGO_URI is required — add it in Render → Environment')
+  }
+  if (!mongoUri.startsWith('mongodb://') && !mongoUri.startsWith('mongodb+srv://')) {
+    throw new Error('MONGO_URI must start with mongodb:// or mongodb+srv://')
+  }
+  if (!mongoUri.includes('/') || mongoUri.endsWith('/')) {
+    console.warn(
+      '[startup] MONGO_URI should include a database name, e.g. ...mongodb.net/incident-room',
+    )
   }
 
   if (isProduction && getClientOriginEntries().length === 0) {
@@ -72,13 +80,19 @@ async function start() {
     )
   }
 
-  await mongoose.connect(mongoUri)
+  console.log(`[startup] Connecting to MongoDB (NODE_ENV=${process.env.NODE_ENV || 'development'})...`)
+  await mongoose.connect(mongoUri, {
+    serverSelectionTimeoutMS: 30000,
+  })
+  console.log('[startup] MongoDB connected')
+
   server.listen(port, '0.0.0.0', () => {
-    console.log(`Server listening on port ${port} (${isProduction ? 'production' : 'development'})`)
+    console.log(`[startup] Server listening on port ${port} (${isProduction ? 'production' : 'development'})`)
   })
 }
 
 start().catch((err) => {
-  console.error('Fatal startup error:', err)
+  console.error('[startup] Fatal error:', err instanceof Error ? err.message : err)
+  if (err instanceof Error && err.stack) console.error(err.stack)
   process.exit(1)
 })
